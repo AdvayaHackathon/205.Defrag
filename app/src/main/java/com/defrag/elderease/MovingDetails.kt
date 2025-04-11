@@ -1,8 +1,10 @@
 package com.defrag.elderease
 
+import android.R.attr.tag
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -40,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.LightGray
@@ -47,9 +50,15 @@ import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
@@ -142,6 +151,8 @@ fun MovingDetailsScreen() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
+                        //.height(60.dp),
+
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF065D58)),
                     shape = RoundedCornerShape(10.dp)
                 ) {
@@ -250,19 +261,13 @@ fun CircleItem(step: CircleStep, onClick: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Page1Content(title: String) {
+    val uriHandler = LocalUriHandler.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp), //Added padding here
+            .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        //Title
-        Text(
-            text = title,
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
 
         var pickupLocation by remember { mutableStateOf("") }
         var dropLocation by remember { mutableStateOf("") }
@@ -281,7 +286,7 @@ fun Page1Content(title: String) {
                 )
             }
         )
-        Spacer(modifier = Modifier.height(6.dp))
+        //Spacer(modifier = Modifier.height(6.dp))
 
         OutlinedTextField(
             value = dropLocation,
@@ -296,7 +301,7 @@ fun Page1Content(title: String) {
                 )
             }
         )
-        Spacer(modifier = Modifier.height(6.dp))
+        //Spacer(modifier = Modifier.height(6.dp))
 
         OutlinedTextField(
             value = dateTime,
@@ -341,6 +346,42 @@ fun Page1Content(title: String) {
 
             )
         }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        val annotatedText = buildAnnotatedString {
+            val tag = "Clickable"
+            pushStringAnnotation(tag = tag, annotation = "https://www.google.com") // We add the tag for the click
+            withStyle(
+                style = SpanStyle(
+                    textDecoration = TextDecoration.Underline,
+                    color = Color.Black
+                )
+            ) {
+                append("Need help with check-in/out process?")
+            }
+            pop()
+        }
+        Text(
+            modifier = Modifier.clickable {
+                annotatedText.getStringAnnotations(tag.toString(), 0, annotatedText.length)
+                    .firstOrNull()?.let {
+                        uriHandler.openUri(it.item) // We open the link
+                    }
+            },
+            text = annotatedText
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+        // add a big box here that fills the width and is a map of your location
+        Image(
+            painter = painterResource(id = R.drawable.map), // Replaced the Box with Image
+            contentDescription = "Map Placeholder",
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .shadow(1.dp),
+            contentScale = ContentScale.Crop
+        )
     }
 }
 
@@ -359,7 +400,10 @@ fun TripTypeBox(
             .border(
                 width = 2.dp,
                 color = if (isSelected) Black else Color.LightGray,
-                shape = if (isFirst) RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp) else RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp)
+                shape = if (isFirst) RoundedCornerShape(
+                    topStart = 10.dp,
+                    bottomStart = 10.dp
+                ) else RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp)
             )
             .background(Transparent)
             .clickable(onClick = onSelect)
