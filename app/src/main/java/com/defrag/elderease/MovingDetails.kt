@@ -83,11 +83,13 @@ data class CircleStep(
 
 fun getItemById(itemId: Int): CheckboxItem? {
     val items = listOf(
-        CheckboxItem(id = 1, description = "Item 1", icon = R.drawable.pickup),
-        CheckboxItem(id = 2, description = "Item 2", icon = R.drawable.dropoff),
-        CheckboxItem(id = 3, description = "Item 3", icon = R.drawable.calendar),
-        CheckboxItem(id = 4, description = "Item 4", icon = R.drawable.pickup),
-        CheckboxItem(id = 5, description = "Item 5", icon = R.drawable.dropoff),
+        CheckboxItem(id = 1, description = "Need 1 additional person to shift the patient", icon = R.drawable.icon1),
+        CheckboxItem(id = 2, description = "Need a wheelchair", icon = R.drawable.icon2),
+        CheckboxItem(id = 3, description = "Oxygen support", icon = R.drawable.icon3),
+        CheckboxItem(id = 4, description = "Medical transfer (includes stretcher, monitor, drip stand, oxygen)", icon = R.drawable.icon4),
+        CheckboxItem(id = 5, description = "Need help with hospital paperwork", icon = R.drawable.icon5),
+        CheckboxItem(id = 6, description = "Need post-visit pharmacy pick-up", icon = R.drawable.icon6),
+
     )
     return items.find { it.id == itemId }
 }
@@ -591,11 +593,12 @@ fun Page2Content(
     onItemSelectedChange: (Set<Int>) -> Unit // Receive the lambda to change items
 ) {
     val items = listOf(
-        CheckboxItem(id = 1, description = "Item 1", icon = R.drawable.pickup),
-        CheckboxItem(id = 2, description = "Item 2", icon = R.drawable.dropoff),
-        CheckboxItem(id = 3, description = "Item 3", icon = R.drawable.calendar),
-        CheckboxItem(id = 4, description = "Item 4", icon = R.drawable.pickup),
-        CheckboxItem(id = 5, description = "Item 5", icon = R.drawable.dropoff),
+        CheckboxItem(id = 1, description = "Need 1 additional person to shift the patient", icon = R.drawable.icon1),
+        CheckboxItem(id = 2, description = "Need a wheelchair", icon = R.drawable.icon2),
+        CheckboxItem(id = 3, description = "Oxygen support", icon = R.drawable.icon3),
+        CheckboxItem(id = 4, description = "Medical transfer (includes stretcher, monitor, drip stand, oxygen)", icon = R.drawable.icon4),
+        CheckboxItem(id = 5, description = "Need help with hospital paperwork", icon = R.drawable.icon5),
+        CheckboxItem(id = 6, description = "Need post-visit pharmacy pick-up", icon = R.drawable.icon6),
     )
 
 
