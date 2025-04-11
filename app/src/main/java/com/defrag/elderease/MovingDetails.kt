@@ -30,6 +30,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -248,9 +249,65 @@ fun CircleItem(step: CircleStep, onClick: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Page1Content(title: String) {
-    Text(title)
+fun Page1Content(
+    title: String
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        var pickupLocation by remember { mutableStateOf("") }
+        var dropLocation by remember { mutableStateOf("") }
+        var dateTime by remember { mutableStateOf("") }
+
+        OutlinedTextField(
+            value = pickupLocation,
+            onValueChange = { pickupLocation = it },
+            label = { Text("Enter Pickup Location") },
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.pickup), // Replace with your pickup icon
+                    contentDescription = "Pickup Location Icon",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+
+        OutlinedTextField(
+            value = dropLocation,
+            onValueChange = { dropLocation = it },
+            label = { Text("Enter Drop Location") },
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.dropoff), // Replace with your dropoff icon
+                    contentDescription = "Drop Location Icon",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+
+        OutlinedTextField(
+            value = dateTime,
+            onValueChange = { dateTime = it },
+            label = { Text("Preferred Date and Time") },
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.calendar), // Replace with your date/time icon
+                    contentDescription = "Date and Time Icon",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        )
+    }
 }
 
 @Composable
