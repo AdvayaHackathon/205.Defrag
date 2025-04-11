@@ -61,7 +61,7 @@ data class CircleStep(
     val title: String,
     val isCompleted: Boolean,
     val isCurrent: Boolean,
-    val icon: ImageVector? = null // Add icon property, making it nullable
+    val icon: Int? = null // Add icon property, making it nullable
 )
 
 class MovingDetails : BaseActivity() {
@@ -82,16 +82,16 @@ fun MovingDetailsScreen() {
     val totalSteps = 4
     val context = LocalContext.current
     val stepTitles = listOf(
-        "Moving Details",
+        "Location",
         "Add Items",
         "Add-Ons",
         "Review"
     )
-    val stepIcons = listOf<Any?>(
-        Icons.Filled.Place,
-        Icons.Filled.Add,
-        Icons.Filled.ShoppingCart,
-        Icons.Filled.Check,
+    val stepIcons = listOf<Int?>(
+        R.drawable.location,
+        R.drawable.add_items,
+        R.drawable.addon,
+        R.drawable.review
     )
 
     // Derive the state of circleSteps based on currentStep
@@ -101,7 +101,7 @@ fun MovingDetailsScreen() {
                 title = stepTitles[index],
                 isCompleted = index < currentStep,
                 isCurrent = index == currentStep,
-                icon = stepIcons[index] as ImageVector?
+                icon = stepIcons[index]
             )
         }
     }
@@ -230,7 +230,8 @@ fun CircleItem(step: CircleStep, onClick: () -> Unit) {
                     )
                 } else {
                     Icon(
-                        painter = painterResource(id = step.icon as Int),
+                        painter = painterResource(id = step.icon),
+                        modifier = Modifier.size(20.dp),
                         contentDescription = step.title,
                         tint = if (step.isCurrent) White else Black
                     )
