@@ -155,7 +155,7 @@ fun MovingDetailsScreen() {
         modifier = Modifier
             .fillMaxWidth()
             .height(90.dp)
-            .background(Color.White)
+            .background(White)
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -231,7 +231,11 @@ fun MovingDetailsScreen() {
             // Page Content based on the current step
             when (currentStep) {
                 0 -> Page1Content(title = stepTitles[0])
-                1 -> Page2Content(title = stepTitles[1])
+                1 -> Page2Content(
+                    title = stepTitles[1],
+                    selectedItems = selectedItems, // Pass the variable here
+                    onItemSelectedChange = { newItems -> selectedItems = newItems } // Pass the lambda here
+                )
                 2 -> Page3Content(title = stepTitles[2])
                 3 -> Page4Content(title = stepTitles[3])
             }
@@ -513,8 +517,11 @@ data class CheckboxItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Page2Content(title: String) {
-    // Sample data for the list items
+fun Page2Content(
+    title: String,
+    selectedItems: Set<Int>, // Receive selected items
+    onItemSelectedChange: (Set<Int>) -> Unit // Receive the lambda to change items
+) {
     val items = listOf(
         CheckboxItem(id = 1, description = "Item 1", icon = R.drawable.pickup),
         CheckboxItem(id = 2, description = "Item 2", icon = R.drawable.dropoff),
@@ -523,9 +530,6 @@ fun Page2Content(title: String) {
         CheckboxItem(id = 5, description = "Item 5", icon = R.drawable.dropoff),
     )
 
-    // State to track which items are selected
-    var selectedItems by remember { mutableStateOf(emptySet<Int>()) }
-    val selectedItemCount = selectedItems.size
 
     Column(
         modifier = Modifier
@@ -543,11 +547,12 @@ fun Page2Content(title: String) {
                     item = item,
                     isSelected = selectedItems.contains(item.id),
                     onItemClicked = { isChecked ->
-                        selectedItems = if (isChecked) {
+                        val newSelectedItems = if (isChecked) {
                             selectedItems + item.id
                         } else {
                             selectedItems - item.id
                         }
+                        onItemSelectedChange(newSelectedItems)
                     }
                 )
                 if (item.id != items.last().id) {
