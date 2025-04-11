@@ -14,16 +14,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -44,7 +42,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
@@ -249,17 +246,24 @@ fun CircleItem(step: CircleStep, onClick: () -> Unit) {
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Page1Content(
-    title: String
-) {
+fun Page1Content(title: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp), //Added padding here
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        //Title
+        Text(
+            text = title,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
         var pickupLocation by remember { mutableStateOf("") }
         var dropLocation by remember { mutableStateOf("") }
         var dateTime by remember { mutableStateOf("") }
@@ -271,7 +275,7 @@ fun Page1Content(
             modifier = Modifier.fillMaxWidth(),
             leadingIcon = {
                 Icon(
-                    painter = painterResource(id = R.drawable.pickup), // Replace with your pickup icon
+                    painter = painterResource(id = R.drawable.pickup),
                     contentDescription = "Pickup Location Icon",
                     modifier = Modifier.size(24.dp)
                 )
@@ -286,7 +290,7 @@ fun Page1Content(
             modifier = Modifier.fillMaxWidth(),
             leadingIcon = {
                 Icon(
-                    painter = painterResource(id = R.drawable.dropoff), // Replace with your dropoff icon
+                    painter = painterResource(id = R.drawable.dropoff),
                     contentDescription = "Drop Location Icon",
                     modifier = Modifier.size(24.dp)
                 )
@@ -301,14 +305,89 @@ fun Page1Content(
             modifier = Modifier.fillMaxWidth(),
             leadingIcon = {
                 Icon(
-                    painter = painterResource(id = R.drawable.calendar), // Replace with your date/time icon
+                    painter = painterResource(id = R.drawable.calendar),
                     contentDescription = "Date and Time Icon",
                     modifier = Modifier.size(24.dp)
                 )
             }
         )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Radio Button Boxes
+        var selectedTripType by remember { mutableStateOf("oneWay") } // Default to one-way
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(0.dp) // No spacing between boxes
+        ) {
+            TripTypeBox(
+                title = "One-Way",
+                subtitle = "Get dropped off",
+                isSelected = selectedTripType == "oneWay",
+                onSelect = { selectedTripType = "oneWay" },
+                isFirst = true,
+                modifier = Modifier.weight(1f)
+            )
+            TripTypeBox(
+                title = "Round Trip",
+                subtitle = "Keep the vehicle till return",
+                isSelected = selectedTripType == "roundTrip",
+                onSelect = { selectedTripType = "roundTrip" },
+                isFirst = false,
+                modifier = Modifier
+                    .weight(1f)
+                    .offset(x = (-1).dp) // Using offset to achieve the overlap
+
+            )
+        }
     }
 }
+
+@Composable
+fun TripTypeBox(
+    title: String,
+    subtitle: String,
+    isSelected: Boolean,
+    onSelect: () -> Unit,
+    isFirst: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .height(80.dp)
+            .border(
+                width = 2.dp,
+                color = if (isSelected) Black else Color.LightGray,
+                shape = if (isFirst) RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp) else RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp)
+            )
+            .background(Transparent)
+            .clickable(onClick = onSelect)
+    ) {
+        Column(modifier = Modifier.padding(10.dp)) {
+            Text(text = title, fontWeight = FontWeight.Bold)
+            Text(text = subtitle, fontSize = 12.sp)
+        }
+
+        if (isSelected) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(20.dp)
+                    .background(Black, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = "Selected",
+                    tint = White,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 fun Page2Content(title: String) {
