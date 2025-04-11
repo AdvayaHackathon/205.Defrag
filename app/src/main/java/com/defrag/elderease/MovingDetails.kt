@@ -326,7 +326,7 @@ fun MovingDetailsScreen() {
                         }
                     )
                 }
-    3 -> Page4Content(title = stepTitles[3])
+    3 -> Page4Content(totalCost)
 }
         }
     }
@@ -337,7 +337,41 @@ fun MovingDetailsScreen() {
 
 
 
+
+
 @Composable
-fun Page4Content(title: String) {
-    Text(title)
+fun Page4Content(totalCost: Double) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Payment Summary",
+            color = Color.Black,
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Total Amount to be Paid",
+                color = Color.Gray,
+                fontSize = 16.sp
+            )
+            Text(
+                text = "₹$totalCost",
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+        }
+    }
 }
