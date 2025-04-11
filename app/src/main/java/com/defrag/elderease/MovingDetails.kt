@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -36,10 +37,12 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -78,6 +81,17 @@ data class CircleStep(
     val icon: Int? = null // Add icon property, making it nullable
 )
 
+fun getItemById(itemId: Int): CheckboxItem? {
+    val items = listOf(
+        CheckboxItem(id = 1, description = "Item 1", icon = R.drawable.pickup),
+        CheckboxItem(id = 2, description = "Item 2", icon = R.drawable.dropoff),
+        CheckboxItem(id = 3, description = "Item 3", icon = R.drawable.calendar),
+        CheckboxItem(id = 4, description = "Item 4", icon = R.drawable.pickup),
+        CheckboxItem(id = 5, description = "Item 5", icon = R.drawable.dropoff),
+    )
+    return items.find { it.id == itemId }
+}
+
 class MovingDetails : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,6 +107,8 @@ class MovingDetails : BaseActivity() {
 @Composable
 fun MovingDetailsScreen() {
     var currentStep by remember { mutableStateOf(0) }
+    var showBottomSheet by remember { mutableStateOf(false) }
+
     val totalSteps = 4
     val context = LocalContext.current
     val stepTitles = listOf(
@@ -124,6 +140,7 @@ fun MovingDetailsScreen() {
     }
 
     Scaffold(
+        modifier = Modifier.systemBarsPadding(),
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -175,6 +192,7 @@ fun MovingDetailsScreen() {
                         textAlign = TextAlign.Start
                     )
                     Row(
+                        modifier = Modifier.clickable { showBottomSheet = true },
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
@@ -202,6 +220,56 @@ fun MovingDetailsScreen() {
     }
 }
     ) { innerPadding ->
+
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showBottomSheet = false }, // Close on dismiss
+                sheetState = rememberModalBottomSheetState(),
+            ) {
+                // Bottom sheet content
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    if (selectedItems.isEmpty()) {
+                        item {
+                            Text(
+                                text = "No items selected",
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else {
+                        items(selectedItems.toList()) { itemId ->
+                            // Find the corresponding item based on ID
+                            val item = getItemById(itemId)
+                            if (item != null) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = item.icon),
+                                        contentDescription = item.description,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    Spacer(modifier = Modifier.size(16.dp))
+                                    Text(text = item.description)
+                                }
+                            }
+                        }
+                    }
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
+            }
+        }
+            // ... Content of the screen...
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
