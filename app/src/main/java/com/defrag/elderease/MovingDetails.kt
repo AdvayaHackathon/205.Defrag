@@ -19,14 +19,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -433,9 +437,113 @@ fun TripTypeBox(
 }
 
 
+// Data class for the checkbox list items
+data class CheckboxItem(
+    val id: Int,
+    val description: String,
+    val icon: Int,
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Page2Content(title: String) {
-    Text(title)
+    // Sample data for the list items
+    val items = listOf(
+        CheckboxItem(id = 1, description = "Item 1", icon = R.drawable.pickup),
+        CheckboxItem(id = 2, description = "Item 2", icon = R.drawable.dropoff),
+        CheckboxItem(id = 3, description = "Item 3", icon = R.drawable.calendar),
+        CheckboxItem(id = 4, description = "Item 4", icon = R.drawable.pickup),
+        CheckboxItem(id = 5, description = "Item 5", icon = R.drawable.dropoff),
+    )
+
+    // State to track which items are selected
+    var selectedItems by remember { mutableStateOf(emptySet<Int>()) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        // "Facilities" Title Item
+        FacilitiesTitleItem(title = "Facilities")
+        Spacer(modifier = Modifier.height(16.dp))
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(items) { item ->
+                CheckboxListItem(
+                    item = item,
+                    isSelected = selectedItems.contains(item.id),
+                    onItemClicked = { isChecked ->
+                        selectedItems = if (isChecked) {
+                            selectedItems + item.id
+                        } else {
+                            selectedItems - item.id
+                        }
+                    }
+                )
+                if (item.id != items.last().id) {
+                    Divider(color = LightGray, thickness = 1.dp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FacilitiesTitleItem(title: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        //Spacer(modifier = Modifier.size(16.dp))
+        Text(
+            text = title,
+            modifier = Modifier.weight(1f),
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp
+        )
+
+    }
+    Divider(color = LightGray, thickness = 1.dp)
+}
+
+@Composable
+fun CheckboxListItem(
+    item: CheckboxItem,
+    isSelected: Boolean,
+    onItemClicked: (Boolean) -> Unit
+) {
+    var isClicked by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                isClicked = !isClicked
+                onItemClicked(!isSelected)
+            }
+            .background(if (isSelected || isClicked) LightGray.copy(alpha = 0.5f) else Transparent)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(id = item.icon),
+            contentDescription = item.description,
+            modifier = Modifier.size(24.dp),
+            tint = Black
+        )
+        Spacer(modifier = Modifier.size(16.dp))
+        Text(text = item.description, modifier = Modifier.weight(1f))
+        Icon(
+            imageVector = Icons.Filled.ArrowForward,
+            contentDescription = "More",
+            tint = Black
+        )
+    }
 }
 
 @Composable
