@@ -1,11 +1,14 @@
 package com.defrag.elderease
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,6 +47,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -52,7 +56,7 @@ import androidx.compose.ui.unit.sp
 import com.defrag.elderease.ui.theme.ElderEaseTheme
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -73,10 +77,13 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(){
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     Scaffold() { contentPadding ->
         LazyColumn(modifier = Modifier.padding(contentPadding)) {
             item {
                 GradientCardWithBottomSheet(
+                    context = context,
                     title = "Medical Visit",
                     subtitle = "Clinic | Hospital Visit",
                     description = "Need help with doctor visits or hospital support? We’ll take care of it from start to finish.",
@@ -86,6 +93,7 @@ fun MainScreen(){
 
 
                 GradientCardWithBottomSheet(
+                    context = context,
                     title = "Travel Assistance",
                     subtitle = "Pickup & Drop Services",
                     description = "Smooth and safe travel for your loved ones whether it’s to or from stations, airports, or anywhere else.",
@@ -93,6 +101,7 @@ fun MainScreen(){
                     baseColor = Color(0xFF5B71B9),
                 )
                 GradientCardWithBottomSheet(
+                    context = context,
                     title = "Daily Support",
                     subtitle = "Banking | Shopping and Official Paperwork",
                     description = "From bank visits to grocery runs - we assist with everyday tasks, paperwork, and errands.",
@@ -100,6 +109,7 @@ fun MainScreen(){
                     baseColor = Color(0xFF67B173),
                 )
                 GradientCardWithBottomSheet(
+                    context = context,
                     title = "Companionship Care",
                     subtitle = "Conversation | Light and Emotional Support",
                     description = "Someone to talk to, read with, or just spend time - our companions bring warmth and comfort.",
@@ -118,16 +128,15 @@ fun MainScreen(){
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GradientCardWithBottomSheet(
+    context: Context, // Added context parameter
     title: String,
     subtitle: String,
     description: String,
     imageResId: Int,
     baseColor: Color = Color.Blue,
-    onProceedClick: () -> Unit = {}
 ) {
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
     val darkerShade = baseColor.copy(alpha = 0.7f).compositeOver(Color.Black.copy(alpha = 0.4f))
     val iconPlaceholderColor = Color.Black.copy(alpha = 0.2f)
 
@@ -137,7 +146,7 @@ fun GradientCardWithBottomSheet(
             .padding(16.dp)
             .clickable { showBottomSheet = true },
         shape = RoundedCornerShape(16.dp),
-        shadowElevation = 4.dp
+        shadowElevation = 0.dp
     ) {
         Box(
             modifier = Modifier
@@ -220,29 +229,139 @@ fun GradientCardWithBottomSheet(
             onDismissRequest = { showBottomSheet = false },
             sheetState = sheetState,
         ) {
-            // Bottom sheet content
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "This is the Modal Bottom Sheet",
-                    textAlign = TextAlign.Center
+            PopupContent(context) // Pass context here
+        }
+    }
+}
+
+@Composable
+fun PopupContent(context: Context) {
+    // Bottom sheet content
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        GradientCardWithBorder(
+            title = "Quick Visit",
+            subtitle = "(Upto 2 hours)",
+            description = "Perfect for a short consultation or follow-up.",
+            baseColor = Color(0xFFCBDFF2),
+            borderColor = Color(0xFF9DB7CB),
+            context = context
+        )
+        GradientCardWithBorder(
+            context = context,
+            title = "Half Day Help",
+            subtitle = "(Upto 4 hours)",
+            description = "Ideal for slightly longer medical visits with waiting time.",
+            baseColor = Color(0xFFBBE0C6),
+            borderColor = Color(0xFF8EA792)
+        )
+        GradientCardWithBorder(
+            context = context,
+            title = "Full Day Care",
+            subtitle = "(Upto 8 hours)",
+            description = "Great for extended appointments or procedures.",
+            baseColor = Color(0xFFE5CAC6),
+            borderColor = Color(0xFFBA9E9A)
+        )
+    }
+}
+
+
+
+
+@Composable
+fun GradientCardWithBorder(
+    context: Context, // Added context parameter
+    title: String,
+    subtitle: String,
+    description: String,
+    baseColor: Color = Color.Blue,
+    borderColor: Color = baseColor, // New borderColor parameter, defaults to baseColor
+) {
+    val darkerShade = baseColor.copy(alpha = 0.7f).compositeOver(Color.Black.copy(alpha = 0.4f))
+    val transparentBlack = Color.Black.copy(alpha = 0.2f)
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .clickable {
+                // Launch MovingDetails activity
+                val intent = Intent(context, MovingDetails::class.java)
+                context.startActivity(intent)
+            }
+            .border(
+                width = 1.dp,
+                color = borderColor,
+                shape = RoundedCornerShape(16.dp)
+            ),
+        shape = RoundedCornerShape(16.dp),
+        shadowElevation = 0.dp
+    ) {
+        Box(
+            modifier = Modifier
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            baseColor,
+                            darkerShade
+                        )
+                    )
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(onClick = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            showBottomSheet = false
-                        }
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 16.dp),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = title,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = subtitle,
+                            fontSize = 16.sp,
+                            color = transparentBlack
+                        )
                     }
-                }) {
-                    Text("Close Sheet")
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = description,
+                        fontSize = 14.sp,
+                        color = Color.Black.copy(alpha = 0.7f)
+                    )
+                }
+                // Arrow Icon
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowForward,
+                        contentDescription = "Proceed",
+                        tint = borderColor
+                    )
                 }
             }
         }
     }
 }
-
