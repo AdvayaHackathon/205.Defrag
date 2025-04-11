@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -61,6 +63,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -105,6 +108,9 @@ fun MovingDetailsScreen() {
         R.drawable.review
     )
 
+    var selectedItems by remember { mutableStateOf(emptySet<Int>()) }
+    val selectedItemCount = selectedItems.size
+
     // Derive the state of circleSteps based on currentStep
     val circleSteps = remember(currentStep) {
         List(totalSteps) { index ->
@@ -145,25 +151,56 @@ fun MovingDetailsScreen() {
             )
         },
         bottomBar = {
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Button(
-                    onClick = {
-                        if (currentStep < totalSteps - 1) {
-                            currentStep++
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                        //.height(60.dp),
-
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF065D58)),
-                    shape = RoundedCornerShape(10.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(90.dp)
+            .background(Color.White)
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (currentStep == 1) {
+                Column(
+                    horizontalAlignment = Alignment.Start
                 ) {
-                    Text("Confirm")
+                    Text(
+                        text = "$selectedItemCount items added",
+                        color = LightGray,
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Start
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "View all",
+                            color = Black,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier.padding(end = 4.dp)
+                        )
+                        Icon(
+                            imageVector = Icons.Filled.KeyboardArrowUp,
+                            contentDescription = "View All",
+                            tint = Black,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
             }
+            ConfirmButton(
+                currentStep = currentStep,
+                totalSteps = totalSteps,
+                onCurrentStepChanged = { newStep -> currentStep = newStep })
         }
+    }
+}
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -199,6 +236,31 @@ fun MovingDetailsScreen() {
                 3 -> Page4Content(title = stepTitles[3])
             }
         }
+    }
+}
+
+@Composable
+fun ConfirmButton(currentStep: Int, totalSteps: Int, onCurrentStepChanged: (Int) -> Unit) {
+    val buttonModifier = if (currentStep == 1) {
+        Modifier
+            .width(120.dp)
+            .height(40.dp)
+    } else {
+        Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+    }
+    Button(
+        onClick = {
+            if (currentStep < totalSteps - 1) {
+                onCurrentStepChanged(currentStep + 1)
+            }
+        },
+        modifier = buttonModifier,
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF065D58)),
+        shape = RoundedCornerShape(10.dp)
+    ) {
+        Text("Confirm")
     }
 }
 
@@ -266,126 +328,131 @@ fun CircleItem(step: CircleStep, onClick: () -> Unit) {
 @Composable
 fun Page1Content(title: String) {
     val uriHandler = LocalUriHandler.current
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        item {
 
-        var pickupLocation by remember { mutableStateOf("") }
-        var dropLocation by remember { mutableStateOf("") }
-        var dateTime by remember { mutableStateOf("") }
+            var pickupLocation by remember { mutableStateOf("") }
+            var dropLocation by remember { mutableStateOf("") }
+            var dateTime by remember { mutableStateOf("") }
 
-        OutlinedTextField(
-            value = pickupLocation,
-            onValueChange = { pickupLocation = it },
-            label = { Text("Enter Pickup Location") },
-            modifier = Modifier.fillMaxWidth(),
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.pickup),
-                    contentDescription = "Pickup Location Icon",
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        )
-        //Spacer(modifier = Modifier.height(6.dp))
-
-        OutlinedTextField(
-            value = dropLocation,
-            onValueChange = { dropLocation = it },
-            label = { Text("Enter Drop Location") },
-            modifier = Modifier.fillMaxWidth(),
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.dropoff),
-                    contentDescription = "Drop Location Icon",
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        )
-        //Spacer(modifier = Modifier.height(6.dp))
-
-        OutlinedTextField(
-            value = dateTime,
-            onValueChange = { dateTime = it },
-            label = { Text("Preferred Date and Time") },
-            modifier = Modifier.fillMaxWidth(),
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.calendar),
-                    contentDescription = "Date and Time Icon",
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Radio Button Boxes
-        var selectedTripType by remember { mutableStateOf("oneWay") } // Default to one-way
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(0.dp) // No spacing between boxes
-        ) {
-            TripTypeBox(
-                title = "One-Way",
-                subtitle = "Get dropped off",
-                isSelected = selectedTripType == "oneWay",
-                onSelect = { selectedTripType = "oneWay" },
-                isFirst = true,
-                modifier = Modifier.weight(1f)
+            OutlinedTextField(
+                value = pickupLocation,
+                onValueChange = { pickupLocation = it },
+                label = { Text("Enter Pickup Location") },
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.pickup),
+                        contentDescription = "Pickup Location Icon",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             )
-            TripTypeBox(
-                title = "Round Trip",
-                subtitle = "Keep the vehicle till return",
-                isSelected = selectedTripType == "roundTrip",
-                onSelect = { selectedTripType = "roundTrip" },
-                isFirst = false,
+            //Spacer(modifier = Modifier.height(6.dp))
+
+            OutlinedTextField(
+                value = dropLocation,
+                onValueChange = { dropLocation = it },
+                label = { Text("Enter Drop Location") },
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.dropoff),
+                        contentDescription = "Drop Location Icon",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            )
+            //Spacer(modifier = Modifier.height(6.dp))
+
+            OutlinedTextField(
+                value = dateTime,
+                onValueChange = { dateTime = it },
+                label = { Text("Preferred Date and Time") },
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.calendar),
+                        contentDescription = "Date and Time Icon",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Radio Button Boxes
+            var selectedTripType by remember { mutableStateOf("oneWay") } // Default to one-way
+
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .offset(x = (-1).dp) // Using offset to achieve the overlap
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(0.dp) // No spacing between boxes
+            ) {
+                TripTypeBox(
+                    title = "One-Way",
+                    subtitle = "Get dropped off",
+                    isSelected = selectedTripType == "oneWay",
+                    onSelect = { selectedTripType = "oneWay" },
+                    isFirst = true,
+                    modifier = Modifier.weight(1f)
+                )
+                TripTypeBox(
+                    title = "Round Trip",
+                    subtitle = "Keep the vehicle till return",
+                    isSelected = selectedTripType == "roundTrip",
+                    onSelect = { selectedTripType = "roundTrip" },
+                    isFirst = false,
+                    modifier = Modifier
+                        .weight(1f)
+                        .offset(x = (-1).dp) // Using offset to achieve the overlap
 
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            val annotatedText = buildAnnotatedString {
+                val tag = "Clickable"
+                pushStringAnnotation(
+                    tag = tag,
+                    annotation = "https://www.google.com"
+                ) // We add the tag for the click
+                withStyle(
+                    style = SpanStyle(
+                        textDecoration = TextDecoration.Underline,
+                        color = Color.Black
+                    )
+                ) {
+                    append("Need help with check-in/out process?")
+                }
+                pop()
+            }
+            Text(
+                modifier = Modifier.clickable {
+                    annotatedText.getStringAnnotations(tag.toString(), 0, annotatedText.length)
+                        .firstOrNull()?.let {
+                            uriHandler.openUri(it.item) // We open the link
+                        }
+                },
+                text = annotatedText
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+            // add a big box here that fills the width and is a map of your location
+            Image(
+                painter = painterResource(id = R.drawable.map), // Replaced the Box with Image
+                contentDescription = "Map Placeholder",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
+                    .shadow(1.dp),
+                contentScale = ContentScale.Crop
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        val annotatedText = buildAnnotatedString {
-            val tag = "Clickable"
-            pushStringAnnotation(tag = tag, annotation = "https://www.google.com") // We add the tag for the click
-            withStyle(
-                style = SpanStyle(
-                    textDecoration = TextDecoration.Underline,
-                    color = Color.Black
-                )
-            ) {
-                append("Need help with check-in/out process?")
-            }
-            pop()
-        }
-        Text(
-            modifier = Modifier.clickable {
-                annotatedText.getStringAnnotations(tag.toString(), 0, annotatedText.length)
-                    .firstOrNull()?.let {
-                        uriHandler.openUri(it.item) // We open the link
-                    }
-            },
-            text = annotatedText
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-        // add a big box here that fills the width and is a map of your location
-        Image(
-            painter = painterResource(id = R.drawable.map), // Replaced the Box with Image
-            contentDescription = "Map Placeholder",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .shadow(1.dp),
-            contentScale = ContentScale.Crop
-        )
     }
 }
 
@@ -458,6 +525,7 @@ fun Page2Content(title: String) {
 
     // State to track which items are selected
     var selectedItems by remember { mutableStateOf(emptySet<Int>()) }
+    val selectedItemCount = selectedItems.size
 
     Column(
         modifier = Modifier
