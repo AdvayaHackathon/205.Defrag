@@ -1,10 +1,8 @@
 package com.defrag.elderease
 
-import android.R.attr.tag
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,29 +14,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -50,29 +38,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.ColorUtils
 import com.defrag.elderease.ui.theme.ElderEaseTheme
+import kotlin.collections.get
+import kotlin.text.get
 
 data class CircleStep(
     val title: String,
@@ -81,15 +60,15 @@ data class CircleStep(
     val icon: Int? = null // Add icon property, making it nullable
 )
 
+//Add this function at the end of the file, outside all the composables and before the class
 fun getItemById(itemId: Int): CheckboxItem? {
     val items = listOf(
-        CheckboxItem(id = 1, description = "Need 1 additional person to shift the patient", icon = R.drawable.icon1),
-        CheckboxItem(id = 2, description = "Need a wheelchair", icon = R.drawable.icon2),
-        CheckboxItem(id = 3, description = "Oxygen support", icon = R.drawable.icon3),
-        CheckboxItem(id = 4, description = "Medical transfer (includes stretcher, monitor, drip stand, oxygen)", icon = R.drawable.icon4),
-        CheckboxItem(id = 5, description = "Need help with hospital paperwork", icon = R.drawable.icon5),
-        CheckboxItem(id = 6, description = "Need post-visit pharmacy pick-up", icon = R.drawable.icon6),
-
+        CheckboxItem(id = 1, description = "Need 1 additional person to shift the patient", icon = R.drawable.icon1, cost = 100.0),
+        CheckboxItem(id = 2, description = "Need a wheelchair", icon = R.drawable.icon2, cost = 500.0),
+        CheckboxItem(id = 3, description = "Oxygen support", icon = R.drawable.icon3, cost = 1500.0),
+        CheckboxItem(id = 4, description = "Medical transfer (includes stretcher, monitor, drip stand, oxygen)", icon = R.drawable.icon4, cost = 200.0),
+        CheckboxItem(id = 5, description = "Need help with hospital paperwork", icon = R.drawable.icon5, cost = 800.0),
+        CheckboxItem(id = 6, description = "Need post-visit pharmacy pick-up", icon = R.drawable.icon6, cost = 700.0),
     )
     return items.find { it.id == itemId }
 }
@@ -128,6 +107,8 @@ fun MovingDetailsScreen() {
 
     var selectedItems by remember { mutableStateOf(emptySet<Int>()) }
     val selectedItemCount = selectedItems.size
+    var selectedAddOns by remember { mutableStateOf<List<AddOnItem>>(emptyList()) }
+    val totalCost = calculateTotalCost(selectedItems, selectedAddOns)
 
     // Derive the state of circleSteps based on currentStep
     val circleSteps = remember(currentStep) {
@@ -154,7 +135,7 @@ fun MovingDetailsScreen() {
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = LightGray
+                    White
                 ),
                 navigationIcon = {
                     IconButton(onClick = {
@@ -172,6 +153,10 @@ fun MovingDetailsScreen() {
         bottomBar = {
     Box(
         modifier = Modifier
+            .border(
+                width = 1.dp,
+                color = Color.Black.copy(alpha = 0.1f)
+            ) // Add the top border here
             .fillMaxWidth()
             .height(90.dp)
             .background(White)
@@ -214,6 +199,30 @@ fun MovingDetailsScreen() {
                     }
                 }
             }
+
+            if(currentStep == 2){
+                val totalCost = calculateTotalCost(selectedItems)
+                val selectedItemCount = selectedItems.size
+                Column(
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "₹$totalCost",
+                        color = Black,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Start
+                    )
+                    Text(
+                        text = "$selectedItemCount items selected",
+                        color = LightGray,
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Start
+                    )
+
+                }
+            }
+
             ConfirmButton(
                 currentStep = currentStep,
                 totalSteps = totalSteps,
@@ -281,6 +290,7 @@ fun MovingDetailsScreen() {
             // Circles Row
             Row(
                 modifier = Modifier
+                    .background(if (currentStep == 2 || currentStep == 3) White else Transparent)
                     .fillMaxWidth()
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -302,398 +312,30 @@ fun MovingDetailsScreen() {
             when (currentStep) {
                 0 -> Page1Content(title = stepTitles[0])
                 1 -> Page2Content(
-                    title = stepTitles[1],
-                    selectedItems = selectedItems, // Pass the variable here
-                    onItemSelectedChange = { newItems -> selectedItems = newItems } // Pass the lambda here
-                )
-                2 -> Page3Content(title = stepTitles[2])
-                3 -> Page4Content(title = stepTitles[3])
-            }
-        }
-    }
-}
-
-@Composable
-fun ConfirmButton(currentStep: Int, totalSteps: Int, onCurrentStepChanged: (Int) -> Unit) {
-    val buttonModifier = if (currentStep == 1) {
-        Modifier
-            .width(120.dp)
-            .height(40.dp)
-    } else {
-        Modifier
-            .fillMaxWidth()
-            .height(40.dp)
-    }
-    Button(
-        onClick = {
-            if (currentStep < totalSteps - 1) {
-                onCurrentStepChanged(currentStep + 1)
-            }
-        },
-        modifier = buttonModifier,
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF065D58)),
-        shape = RoundedCornerShape(10.dp)
-    ) {
-        Text("Confirm")
-    }
-}
-
-@Composable
-fun CircleItem(step: CircleStep, onClick: () -> Unit) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable {
-            onClick()
-        }
-    ) {
-        Box(
-            modifier = Modifier
-                .size(50.dp)
-                .clip(CircleShape)
-                .border(
-                    width = 2.dp,
-                    color = if (!step.isCurrent) {
-                        Color(ColorUtils.setAlphaComponent(Black.toArgb(), (0.3f * 255).toInt()))
-                    } else {
-                        Transparent
-                    },
-                    shape = CircleShape
-                )
-                .background(
-                    color = if (step.isCurrent) Color(0xFF065D58) else Transparent
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            if (step.isCompleted) {
-                Icon(
-                    imageVector = Icons.Filled.Check,
-                    contentDescription = "Completed",
-                    tint = Color(ColorUtils.setAlphaComponent(Black.toArgb(), (0.3f * 255).toInt())) // Checkmark is now grayed out
-                )
-            } else if (step.icon != null) {
-                if (step.icon is ImageVector) {
-                    Icon(
-                        imageVector = step.icon,
-                        contentDescription = step.title,
-                        tint = if (step.isCurrent) White else Black
-                    )
-                } else {
-                    Icon(
-                        painter = painterResource(id = step.icon),
-                        modifier = Modifier.size(20.dp),
-                        contentDescription = step.title,
-                        tint = if (step.isCurrent) White else Black
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = step.title,
-            fontSize = 12.sp,
-            fontWeight = if (step.isCurrent) FontWeight.Bold else FontWeight.Normal,
-            color = if (step.isCurrent) Black else Black
-        )
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun Page1Content(title: String) {
-    val uriHandler = LocalUriHandler.current
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        item {
-
-            var pickupLocation by remember { mutableStateOf("") }
-            var dropLocation by remember { mutableStateOf("") }
-            var dateTime by remember { mutableStateOf("") }
-
-            OutlinedTextField(
-                value = pickupLocation,
-                onValueChange = { pickupLocation = it },
-                label = { Text("Enter Pickup Location") },
-                modifier = Modifier.fillMaxWidth(),
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.pickup),
-                        contentDescription = "Pickup Location Icon",
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            )
-            //Spacer(modifier = Modifier.height(6.dp))
-
-            OutlinedTextField(
-                value = dropLocation,
-                onValueChange = { dropLocation = it },
-                label = { Text("Enter Drop Location") },
-                modifier = Modifier.fillMaxWidth(),
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.dropoff),
-                        contentDescription = "Drop Location Icon",
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            )
-            //Spacer(modifier = Modifier.height(6.dp))
-
-            OutlinedTextField(
-                value = dateTime,
-                onValueChange = { dateTime = it },
-                label = { Text("Preferred Date and Time") },
-                modifier = Modifier.fillMaxWidth(),
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.calendar),
-                        contentDescription = "Date and Time Icon",
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Radio Button Boxes
-            var selectedTripType by remember { mutableStateOf("oneWay") } // Default to one-way
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(0.dp) // No spacing between boxes
-            ) {
-                TripTypeBox(
-                    title = "One-Way",
-                    subtitle = "Get dropped off",
-                    isSelected = selectedTripType == "oneWay",
-                    onSelect = { selectedTripType = "oneWay" },
-                    isFirst = true,
-                    modifier = Modifier.weight(1f)
-                )
-                TripTypeBox(
-                    title = "Round Trip",
-                    subtitle = "Keep the vehicle till return",
-                    isSelected = selectedTripType == "roundTrip",
-                    onSelect = { selectedTripType = "roundTrip" },
-                    isFirst = false,
-                    modifier = Modifier
-                        .weight(1f)
-                        .offset(x = (-1).dp) // Using offset to achieve the overlap
-
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            val annotatedText = buildAnnotatedString {
-                val tag = "Clickable"
-                pushStringAnnotation(
-                    tag = tag,
-                    annotation = "https://www.google.com"
-                ) // We add the tag for the click
-                withStyle(
-                    style = SpanStyle(
-                        textDecoration = TextDecoration.Underline,
-                        color = Color.Black
-                    )
-                ) {
-                    append("Need help with check-in/out process?")
-                }
-                pop()
-            }
-            Text(
-                modifier = Modifier.clickable {
-                    annotatedText.getStringAnnotations(tag.toString(), 0, annotatedText.length)
-                        .firstOrNull()?.let {
-                            uriHandler.openUri(it.item) // We open the link
-                        }
-                },
-                text = annotatedText
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-            // add a big box here that fills the width and is a map of your location
-            Image(
-                painter = painterResource(id = R.drawable.map), // Replaced the Box with Image
-                contentDescription = "Map Placeholder",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp)
-                    .shadow(1.dp),
-                contentScale = ContentScale.Crop
-            )
-        }
-    }
-}
-
-@Composable
-fun TripTypeBox(
-    title: String,
-    subtitle: String,
-    isSelected: Boolean,
-    onSelect: () -> Unit,
-    isFirst: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .height(80.dp)
-            .border(
-                width = 2.dp,
-                color = if (isSelected) Black else Color.LightGray,
-                shape = if (isFirst) RoundedCornerShape(
-                    topStart = 10.dp,
-                    bottomStart = 10.dp
-                ) else RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp)
-            )
-            .background(Transparent)
-            .clickable(onClick = onSelect)
-    ) {
-        Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = title, fontWeight = FontWeight.Bold)
-            Text(text = subtitle, fontSize = 12.sp)
-        }
-
-        if (isSelected) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(20.dp)
-                    .background(Black, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Check,
-                    contentDescription = "Selected",
-                    tint = White,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
-        }
-    }
-}
-
-
-// Data class for the checkbox list items
-data class CheckboxItem(
-    val id: Int,
-    val description: String,
-    val icon: Int,
-)
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun Page2Content(
-    title: String,
-    selectedItems: Set<Int>, // Receive selected items
-    onItemSelectedChange: (Set<Int>) -> Unit // Receive the lambda to change items
-) {
-    val items = listOf(
-        CheckboxItem(id = 1, description = "Need 1 additional person to shift the patient", icon = R.drawable.icon1),
-        CheckboxItem(id = 2, description = "Need a wheelchair", icon = R.drawable.icon2),
-        CheckboxItem(id = 3, description = "Oxygen support", icon = R.drawable.icon3),
-        CheckboxItem(id = 4, description = "Medical transfer (includes stretcher, monitor, drip stand, oxygen)", icon = R.drawable.icon4),
-        CheckboxItem(id = 5, description = "Need help with hospital paperwork", icon = R.drawable.icon5),
-        CheckboxItem(id = 6, description = "Need post-visit pharmacy pick-up", icon = R.drawable.icon6),
+        title = stepTitles[1],
+        selectedItems = selectedItems, // Pass the variable here
+        onItemSelectedChange = { newItems -> selectedItems = newItems } // Pass the lambda here
     )
-
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // "Facilities" Title Item
-        FacilitiesTitleItem(title = "Facilities")
-        Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(items) { item ->
-                CheckboxListItem(
-                    item = item,
-                    isSelected = selectedItems.contains(item.id),
-                    onItemClicked = { isChecked ->
-                        val newSelectedItems = if (isChecked) {
-                            selectedItems + item.id
-                        } else {
-                            selectedItems - item.id
+                2 -> {
+                    Page3Content(
+                        title = stepTitles[currentStep],
+                        selectedItems = selectedItems,
+                        totalCost = totalCost,
+                        onAddOnsChanged = { newAddOns ->
+                            selectedAddOns = newAddOns
                         }
-                        onItemSelectedChange(newSelectedItems)
-                    }
-                )
-                if (item.id != items.last().id) {
-                    Divider(color = LightGray, thickness = 1.dp)
+                    )
                 }
-            }
+    3 -> Page4Content(title = stepTitles[3])
+}
         }
     }
 }
 
-@Composable
-fun FacilitiesTitleItem(title: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
 
-        //Spacer(modifier = Modifier.size(16.dp))
-        Text(
-            text = title,
-            modifier = Modifier.weight(1f),
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp
-        )
 
-    }
-    Divider(color = LightGray, thickness = 1.dp)
-}
 
-@Composable
-fun CheckboxListItem(
-    item: CheckboxItem,
-    isSelected: Boolean,
-    onItemClicked: (Boolean) -> Unit
-) {
-    var isClicked by remember { mutableStateOf(false) }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                isClicked = !isClicked
-                onItemClicked(!isSelected)
-            }
-            .background(if (isSelected || isClicked) LightGray.copy(alpha = 0.5f) else Transparent)
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            painter = painterResource(id = item.icon),
-            contentDescription = item.description,
-            modifier = Modifier.size(24.dp),
-            tint = Black
-        )
-        Spacer(modifier = Modifier.size(16.dp))
-        Text(text = item.description, modifier = Modifier.weight(1f))
-        Icon(
-            imageVector = Icons.Filled.ArrowForward,
-            contentDescription = "More",
-            tint = Black
-        )
-    }
-}
-
-@Composable
-fun Page3Content(title: String) {
-    Text(title)
-}
 
 @Composable
 fun Page4Content(title: String) {
