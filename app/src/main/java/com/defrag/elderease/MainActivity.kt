@@ -82,6 +82,15 @@ fun MainScreen(){
     Scaffold() { contentPadding ->
         LazyColumn(modifier = Modifier.padding(contentPadding)) {
             item {
+                Spacer(modifier = Modifier.height(50.dp))
+                Text(
+                    text = "Select your services",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
                 GradientCardWithBottomSheet(
                     context = context,
                     title = "Medical Visit",
@@ -243,6 +252,14 @@ fun PopupContent(context: Context) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text(
+            text = "Choose your service",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
         GradientCardWithBorder(
             title = "Quick Visit",
             subtitle = "(Upto 2 hours)",
