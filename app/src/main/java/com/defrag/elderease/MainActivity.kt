@@ -96,7 +96,7 @@ fun MainScreen(){
                     title = "Medical Visit",
                     subtitle = "Clinic | Hospital Visit",
                     description = "Need help with doctor visits or hospital support? We’ll take care of it from start to finish.",
-                    imageResId = R.drawable.ic_launcher_foreground,
+                    imageResId = R.drawable.medical_services,
                     baseColor = Color(0xFF0A6F69),
                 )
 
@@ -106,7 +106,7 @@ fun MainScreen(){
                     title = "Travel Assistance",
                     subtitle = "Pickup & Drop Services",
                     description = "Smooth and safe travel for your loved ones whether it’s to or from stations, airports, or anywhere else.",
-                    imageResId = R.drawable.ic_launcher_foreground,
+                    imageResId = R.drawable.travel,
                     baseColor = Color(0xFF5B71B9),
                 )
                 GradientCardWithBottomSheet(
@@ -114,7 +114,7 @@ fun MainScreen(){
                     title = "Daily Support",
                     subtitle = "Banking | Shopping and Official Paperwork",
                     description = "From bank visits to grocery runs - we assist with everyday tasks, paperwork, and errands.",
-                    imageResId = R.drawable.ic_launcher_foreground,
+                    imageResId = R.drawable.support,
                     baseColor = Color(0xFF67B173),
                 )
                 GradientCardWithBottomSheet(
@@ -122,7 +122,7 @@ fun MainScreen(){
                     title = "Companionship Care",
                     subtitle = "Conversation | Light and Emotional Support",
                     description = "Someone to talk to, read with, or just spend time - our companions bring warmth and comfort.",
-                    imageResId = R.drawable.ic_launcher_foreground,
+                    imageResId = R.drawable.companion,
                     baseColor = Color(0xFFD4764A),
                 )
             }
@@ -208,7 +208,8 @@ fun GradientCardWithBottomSheet(
                         Icon(
                             imageVector = Icons.Filled.ArrowForward,
                             contentDescription = "Proceed",
-                            tint = Color.White
+                            tint = Color.White,
+
                         )
                     }
 
@@ -224,7 +225,7 @@ fun GradientCardWithBottomSheet(
                         painter = painterResource(id = imageResId),
                         contentDescription = "Card Image",
                         modifier = Modifier
-                            .size(80.dp)
+                            .size(40.dp)
                             .clip(CircleShape),
                         contentScale = ContentScale.Crop
                     )
@@ -260,6 +261,9 @@ fun PopupContent(context: Context) {
             modifier = Modifier
                 .fillMaxWidth()
         )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         GradientCardWithBorder(
             title = "Quick Visit",
             subtitle = "(Upto 2 hours)",
@@ -299,7 +303,7 @@ fun GradientCardWithBorder(
     baseColor: Color = Color.Blue,
     borderColor: Color = baseColor, // New borderColor parameter, defaults to baseColor
 ) {
-    val darkerShade = baseColor.copy(alpha = 0.7f).compositeOver(Color.Black.copy(alpha = 0.4f))
+    val darkerShade = baseColor.copy(alpha = 0.7f).compositeOver(Color.White.copy(alpha = 0.8f))
     val transparentBlack = Color.Black.copy(alpha = 0.2f)
 
     Surface(
@@ -324,8 +328,8 @@ fun GradientCardWithBorder(
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            baseColor,
-                            darkerShade
+                            darkerShade,
+                            baseColor
                         )
                     )
                 )

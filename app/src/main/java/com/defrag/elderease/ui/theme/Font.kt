@@ -15,7 +15,7 @@ val provider = GoogleFont.Provider(
 )
 
 
-val fontName = GoogleFont("Inter")
+val fontName = GoogleFont("Inter", bestEffort = true)
 
 val fontFamily = FontFamily(
     Font(googleFont = fontName, fontProvider = provider)
