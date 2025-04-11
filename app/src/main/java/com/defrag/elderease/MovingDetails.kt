@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -109,7 +111,7 @@ fun MovingDetailsScreen() {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Moving Details",
+                        text = stepTitles[currentStep], // Dynamically update the title
                         color = Black,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(top = 16.dp)
@@ -141,8 +143,9 @@ fun MovingDetailsScreen() {
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
-
+                        .padding(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF065D58)),
+                    shape = RoundedCornerShape(10.dp)
                 ) {
                     Text("Confirm")
                 }
@@ -216,7 +219,7 @@ fun CircleItem(step: CircleStep, onClick: () -> Unit) {
                 Icon(
                     imageVector = Icons.Filled.Check,
                     contentDescription = "Completed",
-                    tint = Color(ColorUtils.setAlphaComponent(Black.toArgb(), (0.3f * 255).toInt()))
+                    tint = Color(ColorUtils.setAlphaComponent(Black.toArgb(), (0.3f * 255).toInt())) // Checkmark is now grayed out
                 )
             } else if (step.icon != null) {
                 if (step.icon is ImageVector) {
