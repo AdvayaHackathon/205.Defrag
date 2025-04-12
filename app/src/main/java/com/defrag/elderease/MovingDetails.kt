@@ -19,10 +19,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
@@ -338,39 +343,122 @@ fun MovingDetailsScreen() {
 
 
 
+
 @Composable
 fun Page4Content(totalCost: Double) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.spacedBy(16.dp) // Add spacing between cards
+    ) {
+        // Referral/Coupon Card
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { /* Handle click */ },
+            shape = RoundedCornerShape(8.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFFF2F2F2),
+                contentColor = Black
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.coupon), // Replace with your icon
+                    contentDescription = "Referral Code",
+                    modifier = Modifier.size(24.dp),
+                    tint = Black
+                )
+                Text(
+                    text = "Enter Referral or Coupon Code",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            }
+        }
+
+        // Payment Summary Card
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White,
+                contentColor = Black
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Payment Summary",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Start
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Quoted Amount
+                PaymentRow(label = "Quoted Amount", cost = "₹1000.0")
+                Divider(color = Gray, modifier = Modifier.padding(vertical = 8.dp))
+
+                var totalmoney = totalCost + 500
+                // Total Amount to be Paid
+                PaymentRow(label = "Total Amount to be Paid", cost = "₹$totalmoney")
+                Divider(color = Gray, modifier = Modifier.padding(vertical = 8.dp))
+
+                // Booking Amount to be Paid
+                PaymentRow(label = "Booking Amount to be Paid", cost = "₹500.0")
+                Text(
+                    text = "(An adjustable amount of Rs. 500 needs to be paid for order confirmation)",
+                    color = Gray,
+
+                )
+                Divider(color = Gray, modifier = Modifier.padding(vertical = 8.dp))
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "*By confirming, you agree to the terms and conditions.",
+                    fontSize = 12.sp,
+                    color = Gray,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PaymentRow(label: String, cost: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = "Payment Summary",
-            color = Color.Black,
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
+            text = label,
+            color = Gray,
+            fontSize = 16.sp,
+            textAlign = TextAlign.Start
         )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Total Amount to be Paid",
-                color = Color.Gray,
-                fontSize = 16.sp
-            )
-            Text(
-                text = "₹$totalCost",
-                color = Color.Black,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            )
-        }
+        Text(
+            text = cost,
+            color = Black,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            textAlign = TextAlign.End
+        )
     }
 }
