@@ -115,7 +115,7 @@ fun CircleItem(step: CircleStep, onClick: () -> Unit) {
                 .size(50.dp)
                 .clip(CircleShape)
                 .border(
-                    width = 2.dp,
+                    width = 1.dp,
                     color = if (!step.isCurrent) {
                         Color(ColorUtils.setAlphaComponent(Black.toArgb(), (0.3f * 255).toInt()))
                     } else {
