@@ -56,11 +56,17 @@ import androidx.core.graphics.ColorUtils
 
 @Composable
 fun ConfirmButton(currentStep: Int, totalSteps: Int, onCurrentStepChanged: (Int) -> Unit) {
-    val buttonModifier = if (currentStep == 1 || currentStep == 2) {
+    val buttonModifier = if (currentStep == 1) {
         Modifier
             .width(120.dp)
             .height(40.dp)
-    } else {
+    }
+    else if (currentStep == 2){
+        Modifier
+            .width(180.dp)
+            .height(40.dp)
+    }
+    else {
         Modifier
             .fillMaxWidth()
             .height(40.dp)
