@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -64,10 +65,16 @@ fun ConfirmButton(currentStep: Int, totalSteps: Int, onCurrentStepChanged: (Int)
             .fillMaxWidth()
             .height(40.dp)
     }
+    val context = LocalContext.current
     Button(
         onClick = {
             if (currentStep < totalSteps - 1) {
                 onCurrentStepChanged(currentStep + 1)
+            } else if (currentStep == totalSteps - 1) {
+                context.startActivity(Intent(context, FinalPageActivity::class.java))
+            }
+            else if (currentStep == 4){
+                context.startActivity(Intent(context, MainActivity::class.java))
             }
         },
         modifier = buttonModifier,
@@ -82,6 +89,9 @@ fun ConfirmButton(currentStep: Int, totalSteps: Int, onCurrentStepChanged: (Int)
         }
         else if (currentStep == 3){
             Text("Book Now")
+        }
+        else if (currentStep == 4){
+            Text("Return to home")
         }
     }
 }
